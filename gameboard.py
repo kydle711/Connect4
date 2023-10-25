@@ -75,19 +75,34 @@ class GameBoard:
         """Checks for sequences of 4 after every turn"""
         victory = False
 
-        def _check_horizontal():
+        def _check_horizontal(player_token = player_token):
             sequence = 0
             for row in self.score_grid:
                 for space in row:
                     if space == player_token.id:
                         sequence += 1
                         if sequence == 4:
-                            victory = True
-                            return victory
-                        return
+                            return True
                     else:
                         sequence = 0
+            return False
 
-        _check_horizontal()
-        if victory == True:
-            return victory
+        def _check_vertical(player_token = player_token):
+            sequence = 0
+            for i in range(7):
+                for j in range(6,0,-1):
+                    if self.score_grid[j - 1][i - 1] == player_token.id:
+                        sequence += 1
+                        if sequence == 4:
+                            return True
+                    else:
+                        sequence = 0
+            return False
+
+        def _check_diagonal(player_token = player_token):
+            pass
+
+        victory = _check_horizontal()
+        if victory == False:
+            victory = _check_vertical()
+        return victory

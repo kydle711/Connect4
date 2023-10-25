@@ -10,7 +10,7 @@ class GamePiece:
         GamePiece.id += 1
 
     def __repr__(self):
-        return "WELCOME PLAYER {}! YOUR CHOSEN COLOR IS {}".format(self.id, self.color)
+        return "Welcome PLAYER {}! Your chosen color is {}".format(self.id, self.color)
 
     def set_token_color(self):
         color_dict = {'black': '30m',
