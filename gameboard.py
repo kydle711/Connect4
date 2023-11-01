@@ -35,6 +35,13 @@ class GameBoard:
                            [[], [], [], [], [], [], []],
                            [[], [], [], [], [], [], []]]
 
+        """ Available rows list that populates with a number for each column six times. Every turn, the player's
+         input num will be removed from this list. If there are six tokens played in a given column, there will
+         be no numbers in available list to validate any more selections of that column. 
+         """
+
+        self.available_rows = [num for i in range(6) for num in range(1,8)]
+
     def _display_column_markers(self):
         print("===============================================================\n"
               "H        H        H        H        H        H        H       H\n"
@@ -49,7 +56,7 @@ class GameBoard:
 
         self._display_column_markers()
 
-        #Reformats the grid to allow multiline strings to print horizontally across the console
+        # Reformat the grid to allow multi-line strings to print horizontally across the console
         for row in self.grid:
             rendered_row = [[], [], []]
             blank_row = rendered_row
@@ -62,18 +69,26 @@ class GameBoard:
                 print("".join(rendered_row[index]))
 
     def next_turn(self, active_player):
-        player_input = int(input(f"{active_player}, please select a column: "))
+        """ Takes player input and places token """
+
+        # Initialize player input to an invalid value
+        player_input = 50
+
+        while player_input not in self.available_rows:
+            player_input = int(input(f"{active_player}, please select a column: "))
         self.place_token(active_player, player_input)
+        self.available_rows.remove(player_input)
         self.display()
 
     def  switch_players(self, active_player, next_player):
+        """ Switches each player between active player and next player every turn"""
         placeholder = active_player
         active_player = next_player
         next_player = placeholder
         return active_player, next_player
 
     def place_token(self, active_player: GamePiece, column: int):
-        """ Replace lowest available spot in a selected column with a player's token. """
+        """ Replace the lowest available spot in a selected column with a player's token. """
         try:
             for i in range(6, 0, -1):
                 if self.grid[i - 1][column - 1] == GameBoard.blank_space:
@@ -84,10 +99,15 @@ class GameBoard:
             print("That row is full! Try another one")
 
     def check_victory(self, active_player: GamePiece):
-        """Checks for sequences of 4 after every turn"""
+        """Checks for sequences of 4 after every turn. This function accomplishes this by using several nested
+        functions to iterate across the board several different ways.
+        """
+
+        # Flag to represent if a victory condition has been met
         victory = False
 
         def _check_horizontal(active_player = active_player):
+            """ This function checks for horizontal sequences."""
             sequence = 0
             for row in self.score_grid:
                 for space in row:
@@ -101,6 +121,7 @@ class GameBoard:
             return False
 
         def _check_vertical(active_player = active_player):
+            """ This function checks for vertical sequences."""
             sequence = 0
             for i in range(7):
                 for j in range(6,0,-1):
@@ -114,10 +135,21 @@ class GameBoard:
             return False
 
         def _check_diagonal(active_player = active_player):
+            """ This function checks for diagonal sequences through more nested functions that target
+            specific areas where a diagonal sequence can occur. These functions were nested further to simplify the
+            check_victory function.
+            """
             def _increment_diagonal(x, y, x_increment, y_increment):
+                """ This function increments in different directions across the grid for
+                different functions.
+                """
                 return (x + x_increment, y + y_increment)
 
             def _traverse_bottom_right(active_player = active_player):
+                """ Traverses across the bottom row from left to right. This function only checks the first four
+                spaces, as it is impossible to get a sequence of 4 beyond that. It then increments diagonally up
+                and to the right from each of the four starting points.
+                """
                 sequence = 0
                 for i in range(4):
                     y, x = 5, i
@@ -125,21 +157,24 @@ class GameBoard:
                         for j in range(6):
                             if self.score_grid[y][x] == active_player.id:
                                 sequence += 1
+                                # For debugging
                                 print("X: ", x, "Y: ", y, "       SEQUENCE: ", sequence)
                                 if sequence == 4:
-                                    print("TRAVERSE BOTTOM RIGHT SEQUENCE")
+                                    print("TRAVERSE BOTTOM RIGHT SEQUENCE")  # Debugging
                                     return True
                             else:
                                 sequence = 0
                             x, y = _increment_diagonal(x, y, 1, -1)
 
-                    except Exception as e:
+                    except Exception:
                         pass
-                        #print(e)
                 return False
 
 
             def _traverse_bottom_left(active_player=active_player):
+                """ This function is the same as _traverse_bottom_left, except that it starts from the bottom right
+                corner and increments up and to the left to check for sequences.
+                """
                 sequence = 0
                 for i in range(6,3,-1):
                     y, x = 5, i
@@ -147,22 +182,26 @@ class GameBoard:
                         for j in range(6):
                             if self.score_grid[y][x] == active_player.id:
                                 sequence += 1
-                                print("X: ", x, "Y: ", y, "    SEQUENCE: ", sequence)
+                                print("X: ", x, "Y: ", y, "    SEQUENCE: ", sequence) # debugging
                                 if sequence == 4:
-                                    print("TRAVERSE BOTTOM LEFT SEQUENCE")
+                                    print("TRAVERSE BOTTOM LEFT SEQUENCE") #debugging
                                     return True
                             else:
                                 sequence = 0
                             x, y = _increment_diagonal(x, y, -1, -1)
 
-                    except Exception as e:
+                    except Exception:
                         pass
-                        # print(e)
                 return False
 
 
 
             def _traverse_left_side(active_player = active_player):
+                """ This function traverses up the left side of the board and checks for sequences. It starts at
+                the fourth indexed row and increments up and to the right. It is only necessary to check two rows,
+                because many of the possible win positions are covered by the previous functions. This function
+                does not check above the third indexed row, because a diagonal sequence above that point is not possible.
+                """
                 sequence = 0
                 for i in range(4,2,-1):
                     y, x = i, 0
@@ -170,20 +209,21 @@ class GameBoard:
                         for j in range(6):
                             if self.score_grid[y][x] == active_player.id:
                                 sequence += 1
-                                print("X: ", x, "Y: ", y, "    SEQUENCE: ", sequence)
                                 if sequence == 4:
-                                    print("TRAVERSE LEFT SIDE SEQUENCE")
+                                    print("TRAVERSE LEFT SIDE SEQUENCE") #debugging
                                     return True
                             else:
                                 sequence = 0
                             x, y = _increment_diagonal(x, y, 1, -1)
 
-                    except Exception as e:
+                    except Exception:
                         pass
-                        # print(e)
                 return False
 
             def _traverse_right_side(active_player = active_player):
+                """ This function is the same as _traverse_left_side, except that it moves up the right side and
+                increments up and to the left.
+                """
                 sequence = 0
                 for i in range(4,2,-1):
                     y, x = i, 6
@@ -191,7 +231,7 @@ class GameBoard:
                         for j in range(6):
                             if self.score_grid[y][x] == active_player.id:
                                 sequence += 1
-                                print("TRAVERSE RIGHT SIDE: X: ", x, "Y: ", y, "    SEQUENCE: ", sequence)
+                                #print("TRAVERSE RIGHT SIDE: X: ", x, "Y: ", y, "    SEQUENCE: ", sequence)
                                 if sequence == 4:
                                     print("TRAVERSE RIGHT SIDE SEQUENCE")
                                     return True
@@ -199,12 +239,11 @@ class GameBoard:
                                 sequence = 0
                             x, y = _increment_diagonal(x, y, -1, -1)
 
-                    except Exception as e:
+                    except Exception:
                         pass
-                        # print(e)
                 return False
 
-
+            # Within the check diagonal function, set victory flag equal to the return value of each nested func
             diagonal_victory = _traverse_bottom_right()
             if diagonal_victory == False:
                 diagonal_victory = _traverse_bottom_left()
@@ -215,12 +254,11 @@ class GameBoard:
             return diagonal_victory
 
 
-        print("CHECKING HORIZONTAL")
+        # Within the check victory function, set victory flag equal each nested func. return victory status and active
+        # player at time of victory
         victory = _check_horizontal()
         if victory == False:
-            print("CHECKING VERTICAL")
             victory = _check_vertical()
         if victory == False:
-            print("CHECKING DIAGONAL")
             victory = _check_diagonal()
         return victory, active_player
