@@ -4,13 +4,13 @@ class GamePiece:
         self.id = GamePiece.id
         self.color = color
         self.player_token = ("\033[34m#########\033[0m\n"
-                             "\033[34m###$$$###\033[0m\n"
-                             "\033[34m##$$$$$##\033[0m")
+                             "\033[34m##$$$$$##\033[0m\n"
+                             "\033[34m#$$$$$$$#\033[0m")
 
         GamePiece.id += 1
 
     def __repr__(self):
-        return "Welcome PLAYER {}! Your chosen color is {}".format(self.id, self.color)
+        return "PLAYER {} - {}".format(self.id, self.color)
 
     def set_token_color(self):
         color_dict = {'black': '30m',
