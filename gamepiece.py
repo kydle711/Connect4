@@ -17,8 +17,7 @@ class GamePiece:
 
     def set_token_color(self):
         """ Make a unique half token string for each player based on color by adding appropriate color code."""
-        color_dict = {'black': '30m',
-                      'red': '31m',
+        color_dict = {'red': '31m',
                       'green': '32m',
                       'yellow': '33m',
                       'white': '37m'}
