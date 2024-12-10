@@ -3,7 +3,7 @@ from gamepiece import GamePiece
 
 class GameBoard:
     """ Gameboard class is responsible for displaying an empty board as well as saving position
-    of players tokens as the game progresses
+        of players tokens as the game progresses
     """
     # This represents a blank half tile. A full tile can be rendered from this string.
     # The encoding sets print color of the font to blue
@@ -13,8 +13,8 @@ class GameBoard:
 
     def __init__(self):
         """ This initializes the game board grid with a 3D list. Each row is represented by the second
-        dimension. the columns are represented by the third dimension. After initializing the grid, it is
-        populated with blank tiles.
+            dimension. the columns are represented by the third dimension. After initializing the grid, it is
+            populated with blank tiles.
         """
         self.grid = [[[], [], [], [], [], [], []],
                      [[], [], [], [], [], [], []],
@@ -26,8 +26,8 @@ class GameBoard:
             for i in range(7):
                 row[i - 1] = self.blank_space
 
-        # Score grid allows for quicker checking of win condition. Score grid is updated with player id at
-        # Corresponding coordinate each time a token is placed.
+        """ Score grid allows for quicker checking of win condition. Score grid is updated with player id at
+            Corresponding coordinate each time a token is placed."""
         self.score_grid = [[[], [], [], [], [], [], []],
                            [[], [], [], [], [], [], []],
                            [[], [], [], [], [], [], []],
@@ -36,11 +36,11 @@ class GameBoard:
                            [[], [], [], [], [], [], []]]
 
         """ Available rows list that populates with a number for each column six times. Every turn, the player's
-         input num will be removed from this list. If there are six tokens played in a given column, there will
-         be no numbers in available list to validate any more selections of that column. 
+            input num will be removed from this list. If there are six tokens played in a given column, there will
+            be no numbers in available list to validate any more selections of that column. 
          """
 
-        self.available_rows = [num for i in range(6) for num in range(1, 8)]
+        self.available_rows = [str(num) for i in range(6) for num in range(1, 8)]
 
     def _display_column_markers(self):
         print("===============================================================\n"
@@ -51,15 +51,18 @@ class GameBoard:
               )
 
     def display(self):
-        """ This converts the grid into a format that can be printed to the console. """
-        print_sequence = (0, 1, 2, 1, 0)  # This sequence allows the 3 line strings to be printed as a 5 line tile
+        """ This converts the grid into a format that can be printed to the console.
+            Print sequence allows the 3 line string at Gameboard.blank_space to be
+            printed as a 5 line tile. """
+        print_sequence = (0, 1, 2, 1, 0)
+        print("\n\n\n\n\n\n\n\n\n")      # white space between each board
 
         self._display_column_markers()
 
         # Reformat the grid to allow multi-line strings to print horizontally across the console
         for row in self.grid:
             rendered_row = [[], [], []]
-            blank_row = rendered_row
+            # blank_row = rendered_row
             for board_space in row:
                 rendered_line = board_space.split('\n')
                 for line in rendered_line:
@@ -72,11 +75,14 @@ class GameBoard:
         """ Takes player input and places token """
 
         # Initialize player input to an invalid value
-        player_input = 50
+        player_input = ""
 
         while player_input not in self.available_rows:
-            player_input = int(input(f"{active_player}, please select a column: "))
-        self.place_token(active_player, player_input)
+            player_input = (input(f"\n{active_player}, please select a column: "))
+            if player_input not in self.available_rows:
+                print("\nINVALID INPUT\n")
+
+        self.place_token(active_player, int(player_input))
         self.available_rows.remove(player_input)
         self.display()
 
@@ -114,7 +120,6 @@ class GameBoard:
                     if space == active_player.id:
                         sequence += 1
                         if sequence == 4:
-                            print("HORIZONTAL SEQUENCE")
                             return True
                     else:
                         sequence = 0
@@ -128,7 +133,6 @@ class GameBoard:
                     if self.score_grid[j - 1][i - 1] == active_player.id:
                         sequence += 1
                         if sequence == 4:
-                            print("VERTICAL SEQUENCE")
                             return True
                     else:
                         sequence = 0
@@ -158,16 +162,12 @@ class GameBoard:
                         for j in range(6):
                             if self.score_grid[y][x] == active_player.id:
                                 sequence += 1
-                                # For debugging
-                                print("X: ", x, "Y: ", y, "       SEQUENCE: ", sequence)
                                 if sequence == 4:
-                                    print("TRAVERSE BOTTOM RIGHT SEQUENCE")  # Debugging
                                     return True
                             else:
                                 sequence = 0
                             x, y = _increment_diagonal(x, y, 1, -1)
-
-                    except Exception:
+                    except IndexError:
                         pass
                 return False
 
@@ -182,15 +182,13 @@ class GameBoard:
                         for j in range(6):
                             if self.score_grid[y][x] == active_player.id:
                                 sequence += 1
-                                print("X: ", x, "Y: ", y, "    SEQUENCE: ", sequence)  # debugging
                                 if sequence == 4:
-                                    print("TRAVERSE BOTTOM LEFT SEQUENCE")  # debugging
                                     return True
                             else:
                                 sequence = 0
                             x, y = _increment_diagonal(x, y, -1, -1)
 
-                    except Exception:
+                    except IndexError:
                         pass
                 return False
 
@@ -208,13 +206,12 @@ class GameBoard:
                             if self.score_grid[y][x] == active_player.id:
                                 sequence += 1
                                 if sequence == 4:
-                                    print("TRAVERSE LEFT SIDE SEQUENCE")  # debugging
                                     return True
                             else:
                                 sequence = 0
                             x, y = _increment_diagonal(x, y, 1, -1)
 
-                    except Exception:
+                    except IndexError:
                         pass
                 return False
 
@@ -229,15 +226,13 @@ class GameBoard:
                         for j in range(6):
                             if self.score_grid[y][x] == active_player.id:
                                 sequence += 1
-                                # print("TRAVERSE RIGHT SIDE: X: ", x, "Y: ", y, "    SEQUENCE: ", sequence)
                                 if sequence == 4:
-                                    print("TRAVERSE RIGHT SIDE SEQUENCE")
                                     return True
                             else:
                                 sequence = 0
                             x, y = _increment_diagonal(x, y, -1, -1)
 
-                    except Exception:
+                    except IndexError:
                         pass
                 return False
 

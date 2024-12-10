@@ -1,3 +1,9 @@
+
+""" This is a fun CLI game for playing Connect 4. It supports different color pieces,
+allows two players to go against each other on a shared machine, and will automatically
+detect the winner. I recommend running this directly from your command line. """
+
+
 from gameboard import GameBoard
 from gamepiece import GamePiece
 from title import Title
@@ -8,20 +14,20 @@ four_in_a_row = False
 # Initialize gameboard and print opening title
 connect4 = GameBoard()
 title = Title()
-print(title)
+title.display_opening_title()
 
 # Reference for validating player's color input
-available_colors = ['red', 'green', 'yellow', 'white', 'black']
-player1_color = ""
-player2_color = ""
+available_colors = ['red', 'green', 'yellow', 'white']
+player1_color = ''
+player2_color = ''
 
 print("PLAYER 1: Choose your color.")
 while player1_color not in available_colors:
-    player1_color = input("Please enter red, green, yellow, white, or black: ")
+    player1_color = input("Please enter red, green, yellow, or white: ")
 
-print("PLAYER 2: Choose your color.")
+print("\n\nPLAYER 2: Choose your color.")
 while player2_color not in available_colors or player2_color == player1_color:
-    player2_color = input("Please enter red, green, yellow, white, or black: ")
+    player2_color = input("Please select a different color: ")
 
 # Initialize player objects with chosen player color and player ID
 player1 = GamePiece(player1_color)
